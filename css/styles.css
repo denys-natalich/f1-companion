@@ -504,10 +504,15 @@ body {
 }
 
 .standing-number {
-  font-weight: 700;
-  width: 26px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.5px;
+  width: 40px;
   flex-shrink: 0;
   color: var(--team-color, #999);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--team-color, #999) 65%, transparent);
 }
 
 .standing-name-block {
