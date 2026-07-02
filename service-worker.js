@@ -1,4 +1,4 @@
-const CACHE_NAME = "f1-companion-v15";
+const CACHE_NAME = "f1-companion-v16";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./icons/f1-logo.png",
 ];
 
 self.addEventListener("install", (event) => {

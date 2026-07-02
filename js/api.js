@@ -160,32 +160,13 @@ const DateFmt = (() => {
     return date.toLocaleString(LOCALE, { dateStyle: "medium", timeStyle: "short" });
   }
 
-  const DURATIONS = { Race: 120, Sprint: 30, Qualifying: 60 };
-  function durationMinutes(sessionName) {
-    return DURATIONS[sessionName] ?? 60;
-  }
-
-  function timeRange(session) {
-    const end = new Date(session.date.getTime() + durationMinutes(session.name) * 60000);
-    const datePart = session.date.toLocaleDateString(LOCALE, { day: "numeric", month: "short" });
-    const fmt = (d) => d.toLocaleTimeString(LOCALE, { hour: "2-digit", minute: "2-digit", hour12: false });
-    return `${datePart}, ${fmt(session.date)} - ${fmt(end)}`;
-  }
-
-  const timeFmt = (d) => d.toLocaleTimeString(LOCALE, { hour: "2-digit", minute: "2-digit", hour12: false });
-
   function timeOnly(date) {
-    return timeFmt(date);
-  }
-
-  function timeRangeOnly(session) {
-    const end = new Date(session.date.getTime() + durationMinutes(session.name) * 60000);
-    return `${timeFmt(session.date)} – ${timeFmt(end)}`;
+    return date.toLocaleTimeString(LOCALE, { hour: "2-digit", minute: "2-digit", hour12: false });
   }
 
   function dayHeading(date) {
     return date.toLocaleDateString(LOCALE, { weekday: "long", day: "numeric", month: "long" });
   }
 
-  return { countdown, shortDayTime, localTime, timeRange, timeOnly, timeRangeOnly, dayHeading };
+  return { countdown, shortDayTime, localTime, timeOnly, dayHeading };
 })();

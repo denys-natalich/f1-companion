@@ -41,10 +41,9 @@ const Views = (() => {
         const rows = group.sessions
           .map((s) => {
             const isRace = s.name === "Race";
-            const time = isRace ? DateFmt.timeOnly(s.date) : DateFmt.timeRangeOnly(s);
             return `<li class="day-session-row ${isRace ? "is-race" : ""}">
               <span class="day-session-icon">${sessionIcon(s.name)}</span>
-              <span class="day-session-time">${time}</span>
+              <span class="day-session-time">${DateFmt.timeOnly(s.date)}</span>
               <span class="day-session-sep">—</span>
               <span class="day-session-name">${sessionLabel(s.name)}</span>
             </li>`;
@@ -221,6 +220,36 @@ const Views = (() => {
     `;
   }
 
+  function isStandalone() {
+    return window.navigator.standalone === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  }
+
+  function installGuide() {
+    const steps = [
+      ["Open this page in <strong>Safari</strong>", "(not Chrome or another browser — only Safari can install it)"],
+      ["Tap the <strong>Share</strong> icon <span class=\"install-icon\">⬆︎</span>", "the square with an arrow, in the toolbar"],
+      ["Scroll down and tap <strong>“Add to Home Screen”</strong>", ""],
+      ["Tap <strong>“Add”</strong>", "top-right corner of the popup"],
+      ["Open the <strong>F1</strong> icon from your Home Screen", "it now runs full-screen, just like a native app"],
+    ];
+    const stepsHtml = steps
+      .map(
+        ([title, sub], i) => `
+        <div class="install-step">
+          <span class="install-step-num">${i + 1}</span>
+          <span class="install-step-text">${title}${sub ? `<span class="install-step-sub">${sub}</span>` : ""}</span>
+        </div>`
+      )
+      .join("");
+
+    return `
+      <div class="settings-section install-guide">
+        <h2>Install on Your iPhone</h2>
+        ${stepsHtml}
+      </div>
+    `;
+  }
+
   function renderSettings(state) {
     const snapshot = state.snapshot;
     const favDriverId = Store.getSetting("favoriteDriverId", "");
@@ -242,6 +271,8 @@ const Views = (() => {
             <div class="settings-app-tagline">Schedule, results &amp; standings</div>
           </div>
         </div>
+
+        ${isStandalone() ? "" : installGuide()}
 
         <div class="settings-section">
           <h2>Favorites</h2>

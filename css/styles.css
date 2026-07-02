@@ -38,13 +38,10 @@ body {
   padding: 16px 20px 4px;
 }
 
-.app-header h1 {
-  font-family: var(--font-display);
-  font-size: 34px;
-  font-weight: 900;
-  font-style: italic;
-  letter-spacing: -0.5px;
-  margin: 0;
+.app-logo {
+  height: 34px;
+  display: block;
+  border-radius: 6px;
 }
 
 .content-wrapper {
@@ -708,4 +705,57 @@ body {
   color: #b0b0b6;
   line-height: 1.5;
   padding: 0 12px;
+}
+
+.install-guide {
+  padding: 14px 14px 16px;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 92, 140, 0.35);
+}
+
+.install-guide h2 {
+  margin-left: 0;
+}
+
+.install-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.install-step-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--pink);
+  color: #1a0a0e;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.install-step-text {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.4;
+  padding-top: 2px;
+}
+
+.install-step-text strong {
+  color: var(--pink);
+}
+
+.install-step-sub {
+  display: block;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  margin-top: 1px;
+}
+
+.install-icon {
+  font-size: 13px;
 }
