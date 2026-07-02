@@ -202,47 +202,90 @@ const Views = (() => {
     return segmented + `<div class="standings-list">${rows}</div>`;
   }
 
+  function selectRow({ id, icon, label, options, selectedValue, selectedLabel, selectedColor }) {
+    const optionsHtml = options
+      .map((o) => `<option value="${o.value}" ${o.value === selectedValue ? "selected" : ""}>${o.label}</option>`)
+      .join("");
+    const dot = selectedColor ? `<span class="settings-value-dot" style="background:${selectedColor}"></span>` : "";
+    return `
+      <div class="settings-row settings-row-select">
+        <span class="settings-row-icon">${icon}</span>
+        <span class="settings-row-label">${label}</span>
+        <span class="settings-row-value">${dot}${selectedLabel}</span>
+        <span class="settings-chevron">⌄</span>
+        <select id="${id}" class="settings-native-select" aria-label="${label}">
+          <option value="">None</option>
+          ${optionsHtml}
+        </select>
+      </div>
+    `;
+  }
+
   function renderSettings(state) {
     const snapshot = state.snapshot;
-    const favDriver = Store.getSetting("favoriteDriverId", "");
-    const favConstructor = Store.getSetting("favoriteConstructorId", "");
+    const favDriverId = Store.getSetting("favoriteDriverId", "");
+    const favConstructorId = Store.getSetting("favoriteConstructorId", "");
 
-    const driverOptions = (snapshot?.driverStandings || [])
-      .map((d) => `<option value="${d.driverId}" ${d.driverId === favDriver ? "selected" : ""}>${d.givenName} ${d.familyName}</option>`)
-      .join("");
-    const constructorOptions = (snapshot?.constructorStandings || [])
-      .map((c) => `<option value="${c.constructorId}" ${c.constructorId === favConstructor ? "selected" : ""}>${c.name}</option>`)
-      .join("");
+    const driverList = snapshot?.driverStandings || [];
+    const constructorList = snapshot?.constructorStandings || [];
+    const favDriver = driverList.find((d) => d.driverId === favDriverId);
+    const favConstructor = constructorList.find((c) => c.constructorId === favConstructorId);
 
     const lastUpdated = snapshot?.fetchedAt ? DateFmt.localTime(new Date(snapshot.fetchedAt)) : null;
 
     return `
       <div class="settings-list">
+        <div class="settings-hero">
+          <img src="icons/icon-192.png" class="settings-app-icon" alt="" />
+          <div>
+            <div class="settings-app-name">F1 Companion</div>
+            <div class="settings-app-tagline">Schedule, results &amp; standings</div>
+          </div>
+        </div>
+
         <div class="settings-section">
           <h2>Favorites</h2>
-          <div class="settings-row">
-            <span>Favorite driver</span>
-            <select id="favDriverSelect">
-              <option value="">None</option>
-              ${driverOptions}
-            </select>
-          </div>
-          <div class="settings-row">
-            <span>Favorite team</span>
-            <select id="favConstructorSelect">
-              <option value="">None</option>
-              ${constructorOptions}
-            </select>
-          </div>
+          ${selectRow({
+            id: "favDriverSelect",
+            icon: "🏎️",
+            label: "Favorite driver",
+            options: driverList.map((d) => ({ value: d.driverId, label: `${d.givenName} ${d.familyName}` })),
+            selectedValue: favDriverId,
+            selectedLabel: favDriver ? `${favDriver.givenName} ${favDriver.familyName}` : "None",
+            selectedColor: favDriver ? TeamColors.color(favDriver.constructorId) : null,
+          })}
+          ${selectRow({
+            id: "favConstructorSelect",
+            icon: "🏆",
+            label: "Favorite team",
+            options: constructorList.map((c) => ({ value: c.constructorId, label: c.name })),
+            selectedValue: favConstructorId,
+            selectedLabel: favConstructor ? favConstructor.name : "None",
+            selectedColor: favConstructor ? TeamColors.color(favConstructor.constructorId) : null,
+          })}
         </div>
 
-        <div>
-          <button class="refresh-btn" id="refreshBtn">${state.isLoading ? "Refreshing…" : "Refresh now"}</button>
-          ${lastUpdated ? `<div class="last-updated">Last updated ${lastUpdated}</div>` : ""}
+        <div class="settings-section">
+          <h2>Data</h2>
+          <button class="settings-row settings-row-button" id="refreshBtn" ${state.isLoading ? "disabled" : ""}>
+            <span class="settings-row-icon ${state.isLoading ? "spinning" : ""}">🔄</span>
+            <span class="settings-row-label">${state.isLoading ? "Refreshing…" : "Refresh now"}</span>
+            ${lastUpdated ? `<span class="settings-row-value settings-row-value-small">Updated ${lastUpdated}</span>` : ""}
+          </button>
         </div>
 
-        <div class="attribution">
-          Race data: Jolpica-F1 (community API). Circuit layouts: © f1db, licensed CC BY 4.0.
+        <div class="settings-section">
+          <h2>About</h2>
+          <div class="settings-row settings-row-static">
+            <span class="settings-row-icon">🏁</span>
+            <span class="settings-row-label">Race data</span>
+            <span class="settings-row-value">Jolpica-F1</span>
+          </div>
+          <div class="settings-row settings-row-static">
+            <span class="settings-row-icon">🗺️</span>
+            <span class="settings-row-label">Circuit layouts</span>
+            <span class="settings-row-value settings-row-value-small">© f1db, CC BY 4.0</span>
+          </div>
         </div>
       </div>
     `;

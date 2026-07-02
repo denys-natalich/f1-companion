@@ -82,6 +82,88 @@
     if (el && next) el.textContent = DateFmt.countdown(next.date);
   }
 
+  // Custom pull-to-refresh: the indicator lives outside #content (a sibling
+  // in .content-wrapper) so re-renders never wipe it out mid-gesture.
+  function setupPullToRefresh() {
+    const indicator = document.getElementById("pullIndicator");
+    if (!indicator) return;
+
+    const THRESHOLD = 64;
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    let dragging = false;
+    let refreshing = false;
+
+    function reset() {
+      indicator.style.transform = "";
+      indicator.style.opacity = "";
+      indicator.style.removeProperty("--pull-rotate");
+    }
+
+    content.addEventListener(
+      "touchstart",
+      (e) => {
+        if (refreshing || content.scrollTop > 0) {
+          tracking = false;
+          return;
+        }
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        tracking = true;
+        dragging = false;
+      },
+      { passive: true }
+    );
+
+    content.addEventListener(
+      "touchmove",
+      (e) => {
+        if (!tracking || refreshing) return;
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+
+        if (!dragging) {
+          if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return;
+          dragging = Math.abs(dy) > Math.abs(dx) && dy > 0;
+          if (!dragging) {
+            tracking = false;
+            return;
+          }
+        }
+        if (dy <= 0) return;
+
+        const pull = Math.min(dy * 0.5, THRESHOLD * 1.4);
+        indicator.style.transform = `translateY(${pull - 56}px)`;
+        indicator.style.opacity = String(Math.min(pull / THRESHOLD, 1));
+        indicator.style.setProperty("--pull-rotate", `${(pull / THRESHOLD) * 180}deg`);
+        indicator.classList.toggle("ready", pull >= THRESHOLD);
+      },
+      { passive: true }
+    );
+
+    content.addEventListener("touchend", async () => {
+      if (!tracking || refreshing) {
+        tracking = false;
+        return;
+      }
+      tracking = false;
+      const ready = indicator.classList.contains("ready");
+      if (!ready) {
+        reset();
+        return;
+      }
+      refreshing = true;
+      indicator.classList.add("refreshing");
+      indicator.style.transform = "translateY(0px)";
+      indicator.style.opacity = "1";
+      await Store.refresh();
+      refreshing = false;
+      indicator.classList.remove("refreshing", "ready");
+      reset();
+    });
+  }
+
   tabButtons.forEach((btn) => {
     btn.addEventListener("click", () => Store.setTab(btn.dataset.tab));
   });
@@ -89,6 +171,7 @@
   Store.subscribe(render);
   Store.init();
   render();
+  setupPullToRefresh();
   Store.refresh();
 
   setInterval(tickCountdown, 30000);

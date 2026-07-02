@@ -1,4 +1,4 @@
-const CACHE_NAME = "f1-companion-v12";
+const CACHE_NAME = "f1-companion-v13";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
